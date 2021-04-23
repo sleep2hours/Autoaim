@@ -76,8 +76,10 @@ int main(int argc, char **argv)
             continue;
 #ifdef ORIGINAL_PIC
         cv::imshow("origin", frame);
-#endif // ORIGINAL_PIC 
+#endif // ORIGINAL_PIC \
     // writer<<frame;
+        double t_deal = std::chrono::system_clock::now().time_since_epoch().count();
+
         ros::spinOnce();
         if (aros.spin_flag == false)
         {
@@ -100,6 +102,7 @@ int main(int argc, char **argv)
                 wm.reset();
                 break;
             case LARGE_BUFF:
+                wm.start_t = t_deal;
                 wm.reset();
                 break;
             default:;
@@ -118,6 +121,8 @@ int main(int argc, char **argv)
             wm.Hit(frame, aros.g_msg, SMALL_BUFF);
             break;
         case LARGE_BUFF:
+            wm.last_t = wm.now_t;
+            wm.now_t = t_deal;
             wm.Hit(frame, aros.g_msg, LARGE_BUFF);
             break; //TODO: large_buff(...)
         default:;

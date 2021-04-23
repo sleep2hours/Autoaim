@@ -11,7 +11,9 @@ namespace WINDMILL
         center_pt.clear();
     }
 
-    void windMill::reset(){
-        cnt=0;
+    void windMill::reset()
+    {
+        anglevelocity_rad.clear();
+        t_list.clear();
     }
 }

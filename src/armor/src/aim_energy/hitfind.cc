@@ -7,16 +7,19 @@ namespace WINDMILL
         if (GetContours(img))
         {
             hit_point = armors[0].center;
-            // cv::circle(src,hit_point,5,cv::Scalar(0,255,0),-1);
-            KF.predict();
-            measurement.at<float>(0) = hit_point.x;
-            measurement.at<float>(1) = hit_point.y;
-            cv::Mat correction = KF.correct(measurement);
-            hit_point = cv::Point(correction.at<float>(0), correction.at<float>(1));
-            // cv::circle(src, hit_point, 3, cv::Scalar(255, 0, 0), -1);
             now_angle = CalAngle(hit_point, center);
-            // std::cout<<angle<<std::endl;
-            dangle = now_angle - last_angle;
+            dangle_deg = (now_angle - last_angle) / ((now_t - last_t) / 1e3);
+            dangle_rad = abs(dangle_deg * Pi / 180);
+            if (dangle_rad < 2.09 && dangle_rad > 0.52 && mode == big_buff)
+            {
+                if (anglevelocity_rad.size() > 10)
+                {
+                    anglevelocity_rad.pop_front();
+                    t_list.pop_front();
+                }
+                anglevelocity_rad.push_back(dangle_rad);
+                t_list.push_back(now_t - start_t);
+            }
             last_angle = now_angle;
         }
         else

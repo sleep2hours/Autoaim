@@ -5,7 +5,7 @@ namespace WINDMILL
     {
         if (cnt != 24)
         {
-            if (dangle > 0)
+            if (dangle_deg > 0)
                 anticlockwize++;
             else
                 clockwize++;
@@ -13,9 +13,9 @@ namespace WINDMILL
         else
         {
             if (clockwize > anticlockwize)
-                params.constant_speed*=-1;
+                direction = true;
             else
-                params.constant_speed *=1;
+                direction = false;
         }
     }
 }

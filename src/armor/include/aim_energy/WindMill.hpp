@@ -12,6 +12,7 @@
 #include "opencv2/calib3d.hpp"
 #include "serial_com/comm.h"
 #include <vector>
+#include <deque>
 #include "aim_deps/AimDeps.hpp"
 
 #define debug_show
@@ -27,7 +28,9 @@ namespace WINDMILL
         ~windMill();
         void Hit(cv::Mat &img, serial_com::comm &msg, int present); //二营长的意大利炮
         void reset();
-
+        double last_t = 0.0;
+        double now_t = 0.0;
+        double start_t = 0.0; //采样初始时间
     private:
         bool FindHitPoint(cv::Mat &img);                                                                            //找到图像打击点
         bool GetContours(cv::Mat &img);                                                                             //获取装甲版,叶片,R
@@ -37,19 +40,22 @@ namespace WINDMILL
         bool IsValidArmor(std::vector<cv::Point> contour);                                                          //判断是否为有效装甲板
         bool IsValidR(std::vector<cv::Point> contour);                                                              //判断是否为有效R
         void DirectionJudge();                                                                                      //判断转动方向
-        void SmallPredict(float v, float pitch_deg);
-        void BigPredict(float v, float pitch_deg);
+        void SmallPredict(float v, float pitch_deg);                                                                //小符预测
+        void BigPredict(float v, float pitch_deg);                                                                  //大符预测 正弦速度表达式:：spd=0.785*sin（1.884*t)+1.305
+        void FaiFit();                                                                                              //拟合速度正弦表达式
         void clear();
 
     private:
         cv::Mat src;
-        wm_param params; //风车参数
-        int mode;        //当前模式
-        bool _isblue;    //敌方是否是蓝色
+        wm_param params;  //风车参数
+        velocity_fun spd; //正弦表达式参数；
+        int mode;         //当前模式
+        bool _isblue;     //敌方是否是蓝色
         float last_angle = 0.0;
         float now_angle = 0.0;
         float pre_angle = 0.0;
-        float dangle = 0.0;
+        float dangle_rad = 0.0;
+        float dangle_deg = 0.0;
         cv::Point2f center; //大符中心R
         cv::Point2f hit_point;
         cv::Point2f pre_point;
@@ -63,8 +69,8 @@ namespace WINDMILL
         int clockwize;                                    //顺时针转动数
         int anticlockwize;                                //逆时针转动数
         int cnt;                                          //处理帧数
-        cv::KalmanFilter KF;
-        cv::Mat measurement;
+        std::deque<double> t_list;
+        std::deque<double> anglevelocity_rad; //风车旋转速度
 
     public:
         inline double DistCal(cv::Point a, cv::Point b) //计算两点距离
@@ -117,9 +123,25 @@ namespace WINDMILL
             return dist;
         }
 
-        inline double SPreNextAngle(double angle_deg, double t)
+        inline double SPreNextAngle(double angle_deg, double dt) //计算一定时间后匀速风车的角度
         {
-            double next_angle = angle_deg + params.constant_speed * t;
+            double next_angle = angle_deg + params.constant_speed * dt;
+            if (next_angle < 0)
+            {
+                next_angle = 360 + next_angle;
+            }
+            if (next_angle > 360)
+            {
+                next_angle -= 360;
+            }
+            return next_angle;
+        }
+        inline double BPreNextAngle(double angle_deg, double t0, double dt) //计算一定时间后正弦风车的角度
+        {
+            double angle_sum = spd.A0 * dt + (spd.A / spd.w) * (cos(spd.w * t0 + spd.fai) - cos(spd.w * (t0 + dt) + spd.fai));
+            if (direction == true)
+                angle_sum *= -1;
+            double next_angle = angle_deg + angle_sum / Pi * 180;
             if (next_angle < 0)
             {
                 next_angle = 360 + next_angle;
@@ -137,6 +159,24 @@ namespace WINDMILL
         inline double CalVecAngle(cv::Point2f cen, cv::Point2f fin_vec) //计算两向量夹角
         {
             return acos((cen.x * fin_vec.x + cen.y * fin_vec.y) / (sqrt(cen.x * cen.x + cen.y * cen.y)) / (sqrt(fin_vec.x * fin_vec.x + fin_vec.y * fin_vec.y)));
+        }
+        double FaiDiff(double fai, std::deque<double> t_list, std::deque<double> anglevelocity_rad) //计算正弦拟合函数一阶导
+        {
+            double diff1 = 0;
+            for (int i = 0; i < t_list.size(); i++)
+            {
+                diff1 += (spd.A * sin(spd.w * t_list[i] + fai) + spd.A0 - anglevelocity_rad[i]) * spd.A * cos(spd.w * t_list[i] + fai);
+            }
+            return diff1;
+        }
+        double FaiDiff2(double fai, std::deque<double> t_list, std::deque<double> anglevelocity_rad) //计算正弦拟合函数二阶导
+        {
+            double diff2 = 0;
+            for (int i = 0; i < t_list.size(); i++)
+            {
+                diff2 += (spd.A * spd.A * std::pow(cos(spd.w * t_list[i] + fai), 2) - (spd.A * sin(spd.w * t_list[i] + fai) + spd.A0 - anglevelocity_rad[i]) * spd.A * sin(spd.w * t_list[i] + fai));
+            }
+            return diff2;
         }
     };
 }

@@ -42,9 +42,16 @@ namespace WINDMILL
         float offset_x = 0;    //枪口和摄像头偏移补偿量
         float offset_y = -47;
         float offset_z = 119.2;
-        double constant_speed =45;
+        double constant_speed = 45;
         bool direction = true; //是否逆时针转动
         float init_k_ = 0.02;
+    };
+    struct velocity_fun
+    {
+        double A = 0.785;
+        double w = 1.884;
+        double A0 = 1.305;
+        double fai = 0.0;
     };
 }
 
