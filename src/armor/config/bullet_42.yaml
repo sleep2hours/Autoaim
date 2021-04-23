@@ -1,0 +1,21 @@
+init_color_blue: 1
+gimbal_trans_x: 0.0
+gimbal_trans_y: 145.5
+gimbal_trans_z: -61.95
+gimbal_offset_pitch: 0.0
+gimbal_offset_yaw: 0.6
+
+# 速度已经从云台获得，此处加一个偏置 #12.4
+debug_velocity: 11  
+
+gimbal_k_value: 0.00831
+# 冬天接近于0.0090, 夏天 0.00831
+# 0.0355
+
+#debug_mode: debug使用中远打击代码还是近程打击代码？ 0 为aim_distance
+debug_mode: 0
+
+#from_video 视频流是否来自于视频文件?1为是,若 0(否) 则来自于摄像头
+from_video: 0
+
+video_path: "/home/sentinel/videos/cv_output13.avi"

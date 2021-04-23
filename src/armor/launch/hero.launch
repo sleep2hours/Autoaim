@@ -1,0 +1,8 @@
+<launch> 
+<rosparam command="load" file="$(find armor)/config/bullet_42.yaml" />
+<rosparam command="load" file="$(find armor)/config/aim_deps_config.yaml" />
+<group ns="test"> 
+    <node pkg="serial_com" name="stm_com" type="stm_com" output="screen" respawn="true"/>
+    <node pkg="armor" name="main_frame" type="Frame" output="screen" respawn="false" />
+</group> 
+</launch>

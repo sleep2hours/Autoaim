@@ -1,0 +1,27 @@
+################Distance####################
+#==================RED=====================#
+red_thresh_low : 80           #二值图threshold下阈值
+red_r_balance  : 1500         #白平衡（红色通道）
+red_b_balance  : 4000         #白平衡（蓝色通道）
+red_filter     : 60           #环境或血条导致的杂灯条过滤阈值
+red_channel_g   : 50          #对方红色时主通道与绿色通道差异最小允许值
+#==================BLUE====================#
+blue_thresh_low : 145          #二值图threshold下阈值
+blue_r_balance  : 3600        #白平衡（红色通道）
+blue_b_balance  : 1957        #白平衡（蓝色通道）
+blue_filter     : 10          #环境或血条导致的杂灯条过滤阈值 (20)
+blue_channel_g : 5            #对方蓝色时主通道与绿色通道差异最小允许值
+
+#################Vicinity#####################
+blue_y_min : 200
+blue_u_min : 100
+blue_v_min : 0
+blue_y_max : 255 
+blue_u_max : 255
+blue_v_max : 200
+red_h_min : 0
+red_s_min : 43
+red_v_min : 46
+red_h_max : 25
+red_s_max : 255
+red_v_max : 255
