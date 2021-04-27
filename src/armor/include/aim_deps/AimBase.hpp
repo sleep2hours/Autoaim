@@ -21,7 +21,7 @@
 #include "aim_pre/Predict.hpp"
 #include "aim_dec/Armordecision.hpp"
 #include "serial_com/comm.h"
-#define DISPLAY_TARGETS         // AimBase      自瞄基类            显示处理后的有目标图像
+// #define DISPLAY_TARGETS         // AimBase      自瞄基类            显示处理后的有目标图像
 // #define BASE_CNT_TIME        // AimBase      自瞄基类            自瞄基类时间测试
 // #define MODE_SPECIFY         // AimBase      自瞄基类            显示自瞄内部的模式
 

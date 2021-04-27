@@ -15,6 +15,6 @@ gimbal_k_value: 0.01949
 debug_mode: 0
 
 #from_video 视频流是否来自于视频文件?1为是,若 0(否) 则来自于摄像头
-from_video: 0
+from_video: 1
 
-video_path: "/home/sentinel/videos/cv_output9.avi"
+video_path: "/home/lym/b22.avi"

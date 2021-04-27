@@ -48,9 +48,9 @@ namespace WINDMILL
     };
     struct velocity_fun
     {
-        double A = 0.785;
-        double w = 1.884;
-        double A0 = 1.305;
+        double A = 34.97718692;
+        double w = 1.684;
+        double A0 = 94.77099226;
         double fai = 0.0;
     };
 }

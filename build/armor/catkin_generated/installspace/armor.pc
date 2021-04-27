@@ -1,0 +1,8 @@
+prefix=/home/lym/Autoaim/install
+
+Name: armor
+Description: Description of armor
+Version: 0.0.0
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib -larmor
+Requires: 

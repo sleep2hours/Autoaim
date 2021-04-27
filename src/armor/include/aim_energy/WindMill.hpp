@@ -65,7 +65,7 @@ namespace WINDMILL
         std::vector<cv::RotatedRect> armors;              //装甲版容器
         std::vector<cv::RotatedRect> fins;                //叶片容器
         std::vector<cv::RotatedRect> center_pt;           //大符中心预选容器
-        bool direction;                                   //风车旋转方向:是否顺时针旋转
+        bool direction = true;                            //风车旋转方向:是否顺时针旋转
         int clockwize;                                    //顺时针转动数
         int anticlockwize;                                //逆时针转动数
         int cnt;                                          //处理帧数
@@ -81,7 +81,7 @@ namespace WINDMILL
             return dist;
         }
 
-        inline cv::Point CalcPoint(cv::Point2f center, double R, double angle_deg) //根据角度和中心算点
+        inline cv::Point CalPoint(cv::Point2f center, double R, double angle_deg) //根据角度和中心算点
         {
             return center + cv::Point2f((float)cos(angle_deg / 180 * Pi), (float)-sin(angle_deg / 180 * Pi)) * (float)R;
         }
@@ -141,18 +141,18 @@ namespace WINDMILL
             double angle_sum = spd.A0 * dt + (spd.A / spd.w) * (cos(spd.w * t0 + spd.fai) - cos(spd.w * (t0 + dt) + spd.fai));
             if (direction == true)
                 angle_sum *= -1;
-            double next_angle = angle_deg + angle_sum / Pi * 180;
-            if (next_angle < 0)
-            {
-                next_angle = 360 + next_angle;
-            }
-            if (next_angle > 360)
-            {
-                next_angle -= 360;
-            }
+            double next_angle = angle_deg + angle_sum ;
+            // if (next_angle < 0)
+            // {
+            //     next_angle = 360 + next_angle;
+            // }
+            // if (next_angle > 360)
+            // {
+            //     next_angle -= 360;
+            // }
             return next_angle;
         }
-        inline double CalcTime(double x, double v, double angle_deg) const
+        inline double CalTime(double x, double v, double angle_deg) const
         {
             return (double)(-1 / (params.init_k_) * log(1 - params.init_k_ * x / (v * cos(angle_deg / 180 * Pi))));
         }
@@ -174,7 +174,7 @@ namespace WINDMILL
             double diff2 = 0;
             for (int i = 0; i < t_list.size(); i++)
             {
-                diff2 += (spd.A * spd.A * std::pow(cos(spd.w * t_list[i] + fai), 2) - (spd.A * sin(spd.w * t_list[i] + fai) + spd.A0 - anglevelocity_rad[i]) * spd.A * sin(spd.w * t_list[i] + fai));
+                diff2 += (spd.A * spd.A * std::pow(cos(spd.w * t_list[i] + fai), 2) - (spd.A * sin(spd.w * t_list[i] + fai) * (spd.A * sin(spd.w * t_list[i] + fai) + spd.A0 - anglevelocity_rad[i])));
             }
             return diff2;
         }

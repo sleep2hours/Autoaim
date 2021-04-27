@@ -20,7 +20,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "main_frame");
     ros::NodeHandle nh;
     ros::Publisher gimbal_pub;
-
+    int num = 0;
     cv::VideoCapture writer;
     cv::Size size = cv::Size(1440, 1080);
     // writer.open("/home/xjturm/red.avi",writer.four,50,size,true);
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
         cv::imshow("origin", frame);
 #endif // ORIGINAL_PIC \
     // writer<<frame;
-        double t_deal = std::chrono::system_clock::now().time_since_epoch().count();
+        double t_deal = std::chrono::system_clock::now().time_since_epoch().count() / 1e9;
 
         ros::spinOnce();
         if (aros.spin_flag == false)
@@ -99,6 +99,7 @@ int main(int argc, char **argv)
                 d_aim.reset();
                 break;
             case SMALL_BUFF:
+                wm.start_t = t_deal;
                 wm.reset();
                 break;
             case LARGE_BUFF:
@@ -118,11 +119,13 @@ int main(int argc, char **argv)
             d_aim.aimAuto(frame, aros.g_msg);
             break;
         case SMALL_BUFF:
+            wm.last_t = wm.now_t;
+            wm.now_t = t_deal - t_start;
             wm.Hit(frame, aros.g_msg, SMALL_BUFF);
             break;
         case LARGE_BUFF:
             wm.last_t = wm.now_t;
-            wm.now_t = t_deal;
+            wm.now_t = t_deal - t_start;
             wm.Hit(frame, aros.g_msg, LARGE_BUFF);
             break; //TODO: large_buff(...)
         default:;
@@ -132,8 +135,9 @@ int main(int argc, char **argv)
         grab.setBufferState();          //unlock
         gimbal_pub.publish(aros.g_msg); //云台通信
         aros.clearSpinFlag();
+        num++;
     } while (ros::ok());
     double t_end = std::chrono::system_clock::now().time_since_epoch().count();
-    printf("Average running time: %lf ms\n", (t_end - t_start) / 1e6);
+    printf("Average running time: %lf ms\n", (t_end - t_start) / 1e6 / num);
     return 0;
 }

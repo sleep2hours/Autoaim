@@ -1,0 +1,2 @@
+armor:serial_com
+-DCATKIN_DEVEL_PREFIX=/home/lym/Autoaim/devel -DCMAKE_INSTALL_PREFIX=/home/lym/Autoaim/install -G Unix Makefiles

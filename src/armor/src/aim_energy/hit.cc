@@ -44,7 +44,7 @@ namespace WINDMILL
             msg.x = msg.y = msg.z = 0;
         }
 #ifdef debug_show
-        cv::circle(src, hit_point, 5, cv::Scalar(232, 123, 34), -1);
+        cv::circle(src, hit_point, 5, cv::Scalar(122, 40, 230), -1);
 
         char str[20];
         snprintf(str, 20, "Pitch:%f", pitch_deg);
@@ -56,7 +56,7 @@ namespace WINDMILL
         snprintf(str, 20, "V_ball:%f", v_ball);
         cv::putText(src, str, cv::Point2f(80, 100),
                     cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(255, 0, 0));
-        snprintf(str, 20, "PreAngle:%f", pre_angle);
+        snprintf(str, 20, "dangle_rad:%f", dangle_rad);
         cv::putText(src, str, cv::Point2f(80, 120),
                     cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(255, 0, 0));
         snprintf(str, 20, "Angle:%f", now_angle);

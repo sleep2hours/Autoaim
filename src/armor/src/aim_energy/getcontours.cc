@@ -23,7 +23,7 @@ namespace WINDMILL
         cv::findContours(binary, fin_contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
         cv::findContours(binary, R_contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 #ifdef debug_show
-        // cv::imshow("binary", binary);
+        cv::imshow("binary", binary);
 #endif
         if (FindValidFinArmor(fin_contours, hierarchy))
         {
