@@ -12,7 +12,6 @@ namespace WINDMILL
         float v_ball = msg.z;
         mode = present;
         bool find = FindHitPoint(img);
-        // std::cout << cnt << std::endl;
         if (find)
         {
             cnt++;
@@ -31,8 +30,9 @@ namespace WINDMILL
                 {
                     BigPredict(v_ball, pitch_deg);
                 }
-                float X_direct = (pre_point.x - aim_deps::INF_INTRINSIC.at<double>(0, 2)) / aim_deps::INF_INTRINSIC.at<double>(0, 0);
-                float Y_direct = (pre_point.y - aim_deps::INF_INTRINSIC.at<double>(1, 2)) / aim_deps::INF_INTRINSIC.at<double>(1, 1);
+                pre_point = center;
+                float X_direct = (pre_point.x - aim_deps::NEW_INF_INTRINSIC.at<double>(0, 2)) / aim_deps::NEW_INF_INTRINSIC.at<double>(0, 0);
+                float Y_direct = (pre_point.y - aim_deps::NEW_INF_INTRINSIC.at<double>(1, 2)) / aim_deps::NEW_INF_INTRINSIC.at<double>(1, 1);
                 float Z_direct = 1000 * params.hit_dx / (cos(pitch_rad) * cos(yaw_rad) - Y_direct * sin(pitch_rad) - X_direct * cos(pitch_rad) * sin(yaw_rad));
                 msg.x = X_direct * Z_direct;
                 msg.y = Y_direct * Z_direct;
@@ -56,7 +56,7 @@ namespace WINDMILL
         snprintf(str, 20, "V_ball:%f", v_ball);
         cv::putText(src, str, cv::Point2f(80, 100),
                     cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(255, 0, 0));
-        snprintf(str, 20, "dangle_rad:%f", dangle_rad);
+        snprintf(str, 20, "dangle_rad:%f", dangle_deg);
         cv::putText(src, str, cv::Point2f(80, 120),
                     cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(255, 0, 0));
         snprintf(str, 20, "Angle:%f", now_angle);
@@ -71,14 +71,20 @@ namespace WINDMILL
         snprintf(str, 20, "Z:%f", msg.z);
         cv::putText(src, str, cv::Point2f(80, 240),
                     cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(255, 0, 0));
+        if (mode == big_buff)
+        {
+            snprintf(str, 20, "Fai:%f", spd.fai);
+            cv::putText(src, str, cv::Point2f(80, 270),
+                        cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(255, 0, 0));
+        }
         cv::line(src, cv::Point(720, 0), cv::Point(720, 1080), cv::Scalar(255, 0, 0));
         cv::line(src, cv::Point(0, 540), cv::Point(1440, 540), cv::Scalar(255, 0, 0));
 
         imshow("debug", src);
-        cv::waitKey(1);
         if (cv::waitKey(1) == 'e')
         {
-            cv::waitKey(0);
+            // cv::waitKey(0);
+            std::cout << "+++++++++++++++++++++" << std::endl;
         }
 #endif
         clear();

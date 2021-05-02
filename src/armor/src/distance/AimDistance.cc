@@ -59,7 +59,6 @@ void AimDistance::aimAuto(cv::Mat &src, serial_com::comm &msg){
     #ifdef DISPLAY_TARGETS
         aimDisplay(src, msg_bk);
         cv::Mat show = src.clone();
-        resize(show,show,cv::Size(960,720));
         cv::imshow("disp", show);
         key = cv::waitKey(_delay);
         if(key ==' ') {

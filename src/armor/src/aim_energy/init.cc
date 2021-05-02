@@ -4,7 +4,9 @@ namespace WINDMILL
 {
     windMill::windMill(bool blue)
     {
-        cnt=0;
+        iterator = 0;
+        last_loss = 0.0;
+        cnt = 0;
         _isblue = blue;
         cnt = clockwize = anticlockwize = 0;
         clear();

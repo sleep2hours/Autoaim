@@ -71,6 +71,8 @@ namespace WINDMILL
         int cnt;                                          //处理帧数
         std::deque<double> t_list;
         std::deque<double> anglevelocity_rad; //风车旋转速度
+        int iterator = 0;                     //fai求解迭代总次数
+        double last_loss = 0.0;
 
     public:
         inline double DistCal(cv::Point a, cv::Point b) //计算两点距离
@@ -141,15 +143,15 @@ namespace WINDMILL
             double angle_sum = spd.A0 * dt + (spd.A / spd.w) * (cos(spd.w * t0 + spd.fai) - cos(spd.w * (t0 + dt) + spd.fai));
             if (direction == true)
                 angle_sum *= -1;
-            double next_angle = angle_deg + angle_sum ;
-            // if (next_angle < 0)
-            // {
-            //     next_angle = 360 + next_angle;
-            // }
-            // if (next_angle > 360)
-            // {
-            //     next_angle -= 360;
-            // }
+            double next_angle = angle_deg + angle_sum / Pi * 180;
+            if (next_angle < 0)
+            {
+                next_angle = 360 + next_angle;
+            }
+            if (next_angle > 360)
+            {
+                next_angle -= 360;
+            }
             return next_angle;
         }
         inline double CalTime(double x, double v, double angle_deg) const
@@ -160,23 +162,54 @@ namespace WINDMILL
         {
             return acos((cen.x * fin_vec.x + cen.y * fin_vec.y) / (sqrt(cen.x * cen.x + cen.y * cen.y)) / (sqrt(fin_vec.x * fin_vec.x + fin_vec.y * fin_vec.y)));
         }
-        double FaiDiff(double fai, std::deque<double> t_list, std::deque<double> anglevelocity_rad) //计算正弦拟合函数一阶导
+        double FaiDiff(const double &fai, const std::deque<double> &t_list, const std::deque<double> &anglevelocity_rad) //计算正弦拟合函数一阶导
         {
-            double diff1 = 0;
+            double loss = 0.0, diff1 = 0.0, diff1_sum = 0.0;
             for (int i = 0; i < t_list.size(); i++)
             {
-                diff1 += (spd.A * sin(spd.w * t_list[i] + fai) + spd.A0 - anglevelocity_rad[i]) * spd.A * cos(spd.w * t_list[i] + fai);
+                loss = (spd.A * sin(spd.w * t_list[i] + fai) + spd.A0 - anglevelocity_rad[i]);
+                if (abs(loss) < delta)
+                {
+                    diff1 = loss * spd.A * cos(spd.w * t_list[i] + fai);
+                }
+                else
+                {
+                    diff1 = delta * spd.A * cos(spd.w * t_list[i] + fai);
+                    if (loss < 0)
+                        diff1 *= -1;
+                }
+                diff1_sum += diff1;
             }
-            return diff1;
+            return diff1_sum;
         }
-        double FaiDiff2(double fai, std::deque<double> t_list, std::deque<double> anglevelocity_rad) //计算正弦拟合函数二阶导
+        double LossFun(const double &fai, const std::deque<double> &t_list, const std::deque<double> &anglevelocity_rad)
         {
-            double diff2 = 0;
+            double loss = 0.0, loss_sum = 0.0;
             for (int i = 0; i < t_list.size(); i++)
             {
-                diff2 += (spd.A * spd.A * std::pow(cos(spd.w * t_list[i] + fai), 2) - (spd.A * sin(spd.w * t_list[i] + fai) * (spd.A * sin(spd.w * t_list[i] + fai) + spd.A0 - anglevelocity_rad[i])));
+                loss = std::abs((spd.A * sin(spd.w * t_list[i] + fai) + spd.A0 - anglevelocity_rad[i]));
+                if (loss < delta)
+                {
+                    loss *= 0.5 * loss;
+                }
+                else
+                {
+                    loss = delta * loss - 0.5 * delta * delta;
+                }
+                loss_sum += loss;
             }
-            return diff2;
+            return loss_sum;
+        }
+        void UndisortPoint(cv::Point2f &disortpoint)
+        {
+            cv::Mat undisort(2, 1, CV_32FC2);
+            undisort.at<float>(0, 0) = disortpoint.x;
+            undisort.at<float>(0, 1) = disortpoint.y;
+            undisort = undisort.reshape(2);
+            cv::undistortPoints(undisort, undisort, aim_deps::INF_INTRINSIC, aim_deps::INF_DIST, cv::Mat(), aim_deps::NEW_INF_INTRINSIC);
+            undisort = undisort.reshape(1);
+            disortpoint.x = undisort.at<float>(0, 0);
+            disortpoint.y = undisort.at<float>(0, 1);
         }
     };
 }

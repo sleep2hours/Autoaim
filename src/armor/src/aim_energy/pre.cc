@@ -37,7 +37,7 @@ namespace WINDMILL
 
     void windMill::BigPredict(float v, float pitch_deg)
     {
-        if (anglevelocity_rad.size() < 10)
+        if (anglevelocity_rad.size() < 30)
         {
             return;
         }
@@ -72,11 +72,30 @@ namespace WINDMILL
 
     void windMill::FaiFit()
     {
-        for (int i = 0; i < 10; i++)
+        double lastfai;
+        double fai_iterator = spd.fai;
+        double loss_sum = 0.0;
+        for (int i = 0; i < 50; i++)
         {
-            double diff1 = FaiDiff(spd.fai, t_list, anglevelocity_rad);
-            double diff2 = FaiDiff2(spd.fai, t_list, anglevelocity_rad);
-            spd.fai -= diff1 / diff2;
+            iterator++;
+            lastfai = fai_iterator;
+            double diff1_sum = FaiDiff(fai_iterator, t_list, anglevelocity_rad);
+            loss_sum = LossFun(fai_iterator, t_list, anglevelocity_rad);
+            fai_iterator -= exp(-0.0003 * iterator) * (diff1_sum);
+            if (loss_sum < last_loss)
+            {
+                break;
+            }
+        }
+        double weight = last_loss / (loss_sum + last_loss);
+        spd.fai = weight * spd.fai + (1 - weight) * fai_iterator;
+        while (spd.fai < 0)
+        {
+            spd.fai += 2 * Pi;
+        }
+        while (spd.fai > 2 * Pi)
+        {
+            spd.fai -= 2 * Pi;
         }
     }
 }

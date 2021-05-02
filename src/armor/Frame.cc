@@ -69,13 +69,13 @@ int main(int argc, char **argv)
                init_color_blue ? readParam<int>(nh, "/blue_thresh_low") : readParam<int>(nh, "/red_thresh_low"),
                init_color_blue ? readParam<int>(nh, "/blue_channel_g") : readParam<int>(nh, "/red_channel_g"),
                init_color_blue ? readParam<int>(nh, "/blue_filter") : readParam<int>(nh, "/red_filter"));
-    double t_start = std::chrono::system_clock::now().time_since_epoch().count();
+    double t_start = std::chrono::system_clock::now().time_since_epoch().count()/1e9;
     do
     {
         if (grab.getMat(frame))
             continue;
 #ifdef ORIGINAL_PIC
-        cv::imshow("origin", frame);
+        // cv::imshow("origin", frame);
 #endif // ORIGINAL_PIC \
     // writer<<frame;
         double t_deal = std::chrono::system_clock::now().time_since_epoch().count() / 1e9;
@@ -85,7 +85,7 @@ int main(int argc, char **argv)
         {
             aros.updateUseOld();
         }
-        CURRENT_STATUS = SMALL_BUFF; //DISTANCE_AIM;
+        CURRENT_STATUS = DISTANCE_AIM;
 
         if (OLD_STATUS != CURRENT_STATUS)
         {
@@ -137,7 +137,7 @@ int main(int argc, char **argv)
         aros.clearSpinFlag();
         num++;
     } while (ros::ok());
-    double t_end = std::chrono::system_clock::now().time_since_epoch().count();
-    printf("Average running time: %lf ms\n", (t_end - t_start) / 1e6 / num);
+    double t_end = std::chrono::system_clock::now().time_since_epoch().count()/1e9;
+    printf("Average running time: %lf s\n", (t_end - t_start)  / num);
     return 0;
 }

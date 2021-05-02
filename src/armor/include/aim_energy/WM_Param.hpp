@@ -4,7 +4,7 @@
 #define small_buff 2
 #define big_buff 3
 #define Pi 3.1415926
-
+#define delta 0.08
 namespace WINDMILL
 {
 
@@ -48,10 +48,10 @@ namespace WINDMILL
     };
     struct velocity_fun
     {
-        double A = 34.97718692;
-        double w = 1.684;
-        double A0 = 94.77099226;
-        double fai = 0.0;
+        double A = 0.785;
+        double w = 1.884;
+        double A0 = 1.305;
+        double fai = Pi / 6;
     };
 }
 
