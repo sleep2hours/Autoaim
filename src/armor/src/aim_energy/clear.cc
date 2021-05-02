@@ -13,6 +13,8 @@ namespace WINDMILL
 
     void windMill::reset()
     {
+        iterator=0;
+        last_loss=0.0;
         anglevelocity_rad.clear();
         t_list.clear();
     }
